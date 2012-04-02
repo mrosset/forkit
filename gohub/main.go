@@ -36,6 +36,7 @@ func main() {
 	args := flag.Args()
 	if len(args) < 1 {
 		flag.Usage()
+		os.Exit(1)
 	}
 	for _, cmd := range commands {
 		if cmd.Name == args[0] {
