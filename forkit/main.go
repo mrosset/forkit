@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"flag"
-	"github.com/str1ngs/gohub"
+	"github.com/str1ngs/forkit"
 	"github.com/str1ngs/util/console"
 	"log"
 	"os"
