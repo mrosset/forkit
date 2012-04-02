@@ -6,6 +6,6 @@ import (
 )
 
 func TestMain(t *testing.T) {
-	os.Args = append(os.Args, "check")
+	os.Args = append(os.Args, "status")
 	main()
 }

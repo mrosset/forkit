@@ -18,7 +18,7 @@ var (
 
 var commands = []*Command{
 	&Command{"clone", clone},
-	&Command{"check", check},
+	&Command{"status", status},
 }
 
 type Command struct {
@@ -56,7 +56,7 @@ func clone(args []string) {
 	}
 }
 
-func check(args []string) {
+func status(args []string) {
 	glob := filepath.Join(home, "*")
 	dirs, err := filepath.Glob(glob)
 	if err != nil {
