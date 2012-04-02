@@ -13,11 +13,11 @@ import (
 
 const (
 	ApiRepos = "users/%s/repos"
+	Api      = "https://api.github.com/%s"
 )
 
 var (
 	client = new(http.Client)
-	api    = "https://api.github.com/%s"
 )
 
 func init() {
@@ -26,14 +26,14 @@ func init() {
 }
 
 func CallApi(v interface{}, rest string) (err error) {
-	url := fmt.Sprintf(api, rest)
+	url := fmt.Sprintf(Api, rest)
 	res, err := http.Get(url)
 	if err != nil {
 		return
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("%s %v %s", api, res.StatusCode,
+		return fmt.Errorf("%s %v %s", url, res.StatusCode,
 			http.StatusText(res.StatusCode))
 	}
 	err = json.NewDecoder(res.Body).Decode(v)
