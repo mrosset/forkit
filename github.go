@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	log.SetPrefix("jflect: ")
+	log.SetPrefix("gohub: ")
 	log.SetFlags(log.Lshortfile)
 }
 
