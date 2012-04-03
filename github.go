@@ -6,7 +6,6 @@ import (
 	"github.com/str1ngs/util/file"
 	"log"
 	"net/http"
-	"os"
 	"os/exec"
 	"path"
 )
@@ -58,10 +57,9 @@ func Repos(user string) (repos []Repo, err error) {
 func CloneAll(dir string, repos []Repo) (err error) {
 	for _, r := range repos {
 		if !file.Exists(path.Join(dir, r.Name)) {
-			cmd := exec.Command("git", "clone", r.GitUrl, path.Join(dir, r.Name))
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			err := cmd.Run()
+			fmt.Printf("cloneing %-20.20s %s\n", r.Name, r.SshUrl)
+			cmd := exec.Command("git", "clone", r.SshUrl, path.Join(dir, r.Name))
+			err = cmd.Run()
 			if err != nil {
 				return err
 			}
