@@ -17,25 +17,26 @@ import (
 
 var (
 	commands = []*Command{
-		&Command{"clone", clone},
-		&Command{"status", status},
+		&Command{"clone", clone, "clone user github repos"},
+		&Command{"status", status, "check dirty statuf of all repos"},
 	}
 	jconfig = &Config{
-		GithubUser: "",
-		GithubHome: "$HOME/github.com",
+		User: "",
+		Home: "$HOME/github.com",
 	}
 	chome = os.ExpandEnv("$HOME/.config/forkit")
 	jfile = filepath.Join(chome, "config.json")
 )
 
 type Config struct {
-	GithubUser string
-	GithubHome file.Path
+	User string
+	Home file.Path
 }
 
 type Command struct {
-	Name string
-	Run  func(args []string)
+	Name  string
+	Run   func()
+	Usage string
 }
 
 func init() {
@@ -54,13 +55,17 @@ func init() {
 	console.Flush()
 	err := json.Read(&jconfig, jfile)
 	util.CheckFatal(err)
-	if jconfig.GithubUser == "" {
+	if jconfig.User == "" {
 		fmt.Printf("edit %s and add your github username\n", jfile)
 		os.Exit(2)
 	}
 }
 
+func usage() {
+}
+
 func main() {
+	flag.Usage = usage
 	flag.Parse()
 	args := flag.Args()
 	if len(args) < 1 {
@@ -69,31 +74,32 @@ func main() {
 	}
 	for _, cmd := range commands {
 		if cmd.Name == args[0] {
-			cmd.Run(args[1:])
+			cmd.Run()
 		}
 	}
 }
 
-func config(args []string) {
-}
-
-func clone(args []string) {
-	repos, err := gohub.Repos(jconfig.GithubUser)
+func clone() {
+	repos, err := gohub.Repos(jconfig.User)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = gohub.CloneAll(jconfig.GithubHome.Expand(), repos)
+	err = gohub.CloneAll(jconfig.Home.Expand(), repos)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func status(args []string) {
-	glob := filepath.Join(jconfig.GithubHome.Expand(), "*")
+func status() {
+	glob := filepath.Join(jconfig.Home.Expand(), "*")
 	dirs, err := filepath.Glob(glob)
 	if err != nil {
 		log.Fatal(err)
 	}
+	if len(dirs) == 0 {
+		log.Printf("no repos in %s", jconfig.Home)
+	}
+	clean := true
 	for _, d := range dirs {
 		buf := new(bytes.Buffer)
 		git := exec.Command("git", "status", "--porcelain")
@@ -104,9 +110,15 @@ func status(args []string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		if len(buf.Bytes()) > 0 {
+		switch len(buf.Bytes()) {
+		case 0:
+		default:
+			clean = false
 			console.Println(filepath.Base(d), "*")
 		}
+	}
+	if clean {
+		console.Println(jconfig.Home, "clean")
 	}
 	console.Flush()
 }
